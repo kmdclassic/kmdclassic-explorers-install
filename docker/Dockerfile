@@ -20,7 +20,7 @@ RUN \
 
 # Building kmdclassicd
 RUN \
-    git clone -b static-experimental https://github.com/kmdclassic/KmdClassic &&\
+    git clone -b main https://github.com/kmdclassic/KmdClassic &&\
     cd KmdClassic &&\
     ./zcutil/build-no-qt.sh -j$(nproc --all) &&\
     cd ..
