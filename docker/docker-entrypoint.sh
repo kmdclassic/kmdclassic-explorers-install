@@ -106,11 +106,11 @@ EOF
 rewrite_daemon_config() {
     local config_file
     if [ "$COIN_NAME" = "KMD" ]; then
-        mkdir -p "$HOME/.komodo"
-        config_file="$HOME/.komodo/komodo.conf"
+        mkdir -p "$HOME/.kmdclassic"
+        config_file="$HOME/.kmdclassic/kmdclassic.conf"
     else
-        mkdir -p "$HOME/.komodo/${COIN_NAME}"
-        config_file="$HOME/.komodo/${COIN_NAME}/${COIN_NAME}.conf"
+        mkdir -p "$HOME/.kmdclassic/${COIN_NAME}"
+        config_file="$HOME/.kmdclassic/${COIN_NAME}/${COIN_NAME}.conf"
     fi
 
     cat <<EOF > "$config_file"
@@ -148,7 +148,7 @@ chmod +x ${NODE_DIR}/${COIN_NAME}-explorer-start.sh
 _main() {
 
 # if [ "$1" = 'start' ]; then
-    sudo chown -R explorer:explorer /home/explorer/.komodo /home/explorer/.zcash-params
+    sudo chown -R explorer:explorer /home/explorer/.kmdclassic /home/explorer/.zcash-params
     explorer_note "Fetching ZCash params"
     ${HOME}/bin/fetch-params.sh 1>/dev/null 2>/dev/null
     explorer_note "ZCash params download finished."
@@ -157,21 +157,21 @@ _main() {
     then
         # there is a bug with testnet, when indexes changed in config during reindex, so use regtest (!)
         explorer_note "Deleting old test data..."
-        find "${HOME}/.komodo" -mindepth 2 -maxdepth 2 -type d -name regtest -exec rm -rf {} +
+        find "${HOME}/.kmdclassic" -mindepth 2 -maxdepth 2 -type d -name regtest -exec rm -rf {} +
 
         explorer_note "Starting temporary server"
-        komodod $DAEMON_ARGS --regtest --listen=0 --connect=127.0.0.1 --maxconnections=0 --daemon --reindex=0 --server=1 --rpcbind=127.0.0.1
+        kmdclassicd $DAEMON_ARGS --regtest --listen=0 --connect=127.0.0.1 --maxconnections=0 --daemon --reindex=0 --server=1 --rpcbind=127.0.0.1
         explorer_note "Temporary server started."
-        komodo-cli $DAEMON_ARGS -rpcwait --regtest getinfo > /tmp/getinfo.json 2>/dev/null
+        kmdclassic-cli $DAEMON_ARGS -rpcwait --regtest getinfo > /tmp/getinfo.json 2>/dev/null
         explorer_note "Stopping temporary server"
-        komodo-cli $DAEMON_ARGS --regtest stop 1>/dev/null 2>/dev/null
+        kmdclassic-cli $DAEMON_ARGS --regtest stop 1>/dev/null 2>/dev/null
         explorer_note "Temporary server stopped"
 
         COIN_NAME=$(cat /tmp/getinfo.json | jq -r .name)
         COIN_RPC_PORT=$(cat /tmp/getinfo.json | jq -r .rpcport)
         COIN_P2P_PORT=$(cat /tmp/getinfo.json | jq -r .p2pport)
-        COIN_RPC_USER=$(grep -s '^rpcuser=' "${HOME}/.komodo/${COIN_NAME}/${COIN_NAME}.conf")
-        COIN_RPC_PASS=$(grep -s '^rpcpassword=' "${HOME}/.komodo/${COIN_NAME}/${COIN_NAME}.conf")
+        COIN_RPC_USER=$(grep -s '^rpcuser=' "${HOME}/.kmdclassic/${COIN_NAME}/${COIN_NAME}.conf")
+        COIN_RPC_PASS=$(grep -s '^rpcpassword=' "${HOME}/.kmdclassic/${COIN_NAME}/${COIN_NAME}.conf")
         COIN_RPC_USER=${COIN_RPC_USER/rpcuser=/}
         COIN_RPC_PASS=${COIN_RPC_PASS/rpcpassword=/}
         COIN_ZMQ_PORT=$((COIN_RPC_PORT + 1))
@@ -187,8 +187,8 @@ _main() {
     docker_verify_minimum_env
     [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
     nvm use v4
-    mkdir -p $HOME/.komodo/node
-    pushd $HOME/.komodo/node
+    mkdir -p $HOME/.kmdclassic/node
+    pushd $HOME/.kmdclassic/node
     NODE_DIR=$(pwd)
     [ ! -d node_modules ] && npm install git+https://git@github.com/DeckerSU/bitcore-node-komodo || explorer_note "Bitcore node already installed."
 
@@ -207,10 +207,10 @@ _main() {
     # rewrite daemon config
     rewrite_daemon_config
     # explorer_note "Daemon config:"
-    # [ "$COIN_NAME" = "KMD" ] && cat $HOME/.komodo/komodo.conf || cat $HOME/.komodo/${COIN_NAME}/${COIN_NAME}.conf
+    # [ "$COIN_NAME" = "KMD" ] && cat $HOME/.kmdclassic/kmdclassic.conf || cat $HOME/.kmdclassic/${COIN_NAME}/${COIN_NAME}.conf
 
     # start daemon
-    komodod $DAEMON_ARGS --daemon
+    kmdclassicd $DAEMON_ARGS --daemon
     # write explorer start script
     write_explorer_start_script
     # start bitcore process in background
@@ -219,7 +219,7 @@ _main() {
     explorer_note "Seems everything done, let's wait for catch up"
     #/bin/bash
     id
-    [ "$COIN_NAME" = "KMD" ] && tail -F $HOME/.komodo/debug.log || tail -F $HOME/.komodo/${COIN_NAME}/debug.log
+    [ "$COIN_NAME" = "KMD" ] && tail -F $HOME/.kmdclassic/debug.log || tail -F $HOME/.kmdclassic/${COIN_NAME}/debug.log
 
 # fi
 # exec "$@"

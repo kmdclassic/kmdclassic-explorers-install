@@ -1,10 +1,13 @@
-FROM ubuntu:20.04 AS komodod-builder
+FROM ubuntu:20.04 AS kmdclassicd-builder
 # Dockerfile for the explorer (q) Decker, 2022-2024
-# https://github.com/DeckerSU/komodo-explorers-install/
+# https://github.com/kmdclassic/komodo-explorers-install/
+# Dockerfile for the explorer (c) kmdclassic, 2025
+# https://github.com/kmdclassic/kmdclassic-explorers-install/
 
-# Build: docker build -f Dockerfile -t kmdexplorer .
-# Run interactive: docker run -v ${PWD}/.zcash-params:/home/explorer/.zcash-params -v ${PWD}/.komodo:/home/explorer/.komodo -e DAEMON_ARGS="-ac_public=1 -ac_name=KIP0001 -ac_supply=139419284 -ac_staked=10 -addnode=178.159.2.6" -e WEB_PORT=3002 -p 127.0.0.1:3002:3002 -it kmdexplorer
-# Run background:  docker run -v ${PWD}/.zcash-params:/home/explorer/.zcash-params -v ${PWD}/.komodo:/home/explorer/.komodo -e DAEMON_ARGS="-ac_public=1 -ac_name=KIP0001 -ac_supply=139419284 -ac_staked=10 -addnode=178.159.2.6" -p 127.0.0.1:3001:3001 -dt kmdexplorer
+
+# Build: docker build -f Dockerfile -t kmdclassicexplorer .
+# Run interactive: docker run -v ${PWD}/.zcash-params:/home/explorer/.zcash-params -v ${PWD}/.kmdclassic:/home/explorer/.kmdclassic -e DAEMON_ARGS="-ac_public=1 -ac_name=KIP0001 -ac_supply=139419284 -ac_staked=10 -addnode=178.159.2.6" -e WEB_PORT=3002 -p 127.0.0.1:3002:3002 -it kmdclassicexplorer
+# Run background:  docker run -v ${PWD}/.zcash-params:/home/explorer/.zcash-params -v ${PWD}/.kmdclassic:/home/explorer/.kmdclassic -e DAEMON_ARGS="-ac_public=1 -ac_name=KIP0001 -ac_supply=139419284 -ac_staked=10 -addnode=178.159.2.6" -p 127.0.0.1:3001:3001 -dt kmdclassicexplorer
 # Exit interactive without stopping It: press Ctrl+P followed by Ctrl+Q
 # Attach to container console: docker attach followed by the name or ID of the container.
 
@@ -15,10 +18,10 @@ RUN \
     apt-get install -y --no-install-recommends libcurl4-gnutls-dev bsdmainutils automake curl libsodium-dev libcurl4-gnutls-dev &&\
     apt-get install -y --no-install-recommends apt-transport-https ca-certificates libzmq3-dev sudo jq python2
 
-# Building komodod
+# Building kmdclassicd
 RUN \
-    git clone -b static-experimental https://github.com/DeckerSU/KomodoOcean &&\
-    cd KomodoOcean &&\
+    git clone -b static-experimental https://github.com/kmdclassic/KmdClassic &&\
+    cd KmdClassic &&\
     ./zcutil/build-no-qt.sh -j$(nproc --all) &&\
     cd ..
 
@@ -35,7 +38,7 @@ RUN groupadd -r -g 1000 explorer && useradd -r -u 1000 -g explorer -m explorer &
     echo "explorer ALL=(ALL:ALL) NOPASSWD: ALL" | tee /etc/sudoers.d/explorer 
 
 RUN mkdir -p /home/explorer/bin
-COPY --from=komodod-builder /KomodoOcean/src/komodod /KomodoOcean/src/komodo-cli /KomodoOcean/zcutil/fetch-params.sh /home/explorer/bin/
+COPY --from=kmdclassicd-builder /KmdClassic/src/kmdclassicd /KmdClassic/src/kmdclassic-cli /KmdClassic/zcutil/fetch-params.sh /home/explorer/bin/
 RUN chown -R explorer:explorer /home/explorer/bin
 
 USER explorer
@@ -44,7 +47,7 @@ WORKDIR /home/explorer
 ENV PATH="/home/explorer/bin:${PATH}"
 ENV NVM_DIR="/home/explorer/.nvm"
 # RUN \
-#     echo 'alias k="/home/explorer/bin/komodo-cli "' > ~/.bash_aliases
+#     echo 'alias k="/home/explorer/bin/kmdclassic-cli "' > ~/.bash_aliases
 
 # Install nvm
 RUN  \
@@ -57,12 +60,12 @@ COPY docker-entrypoint.sh /usr/local/bin/
 RUN \
     sudo chmod +x /usr/local/bin/docker-entrypoint.sh &&\
     sudo ln -s /usr/local/bin/docker-entrypoint.sh /entrypoint.sh &&\
-    sudo rm -rf /home/explorer/.komodo && sudo mkdir -p /home/explorer/.komodo &&\
+    sudo rm -rf /home/explorer/.kmdclassic && sudo mkdir -p /home/explorer/.kmdclassic &&\
     sudo rm -rf /home/explorer/.zcash-params && sudo mkdir -p /home/explorer/.zcash-params &&\
-    sudo chown -R explorer:explorer /home/explorer/.komodo /home/explorer/.zcash-params
+    sudo chown -R explorer:explorer /home/explorer/.kmdclassic /home/explorer/.zcash-params
 
 # volumes, should be overriden with -v or -mount when container is up
-VOLUME /home/explorer/.komodo
+VOLUME /home/explorer/.kmdclassic
 VOLUME /home/explorer/.zcash-params
 
 ENTRYPOINT ["docker-entrypoint.sh"]

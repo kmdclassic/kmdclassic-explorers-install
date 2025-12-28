@@ -1,4 +1,6 @@
-## Komodo Insight Explorer
+> **Note:** Currently, this repository is adapted for use with Komodo Classic only in the `docker` part. All instructions in this file relate directly to Komodo (KMD). To adapt them to Komodo Classic, you need to independently replace directory names and file names, for example `.komodo` -> `.kmdclassic`, `komodod` -> `kmdclassicd`, etc. Besides this, the installation order remains unchanged.
+
+## Komodo Classic Insight Explorer
 
 ### Notes
 

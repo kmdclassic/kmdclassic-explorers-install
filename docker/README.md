@@ -8,10 +8,10 @@ Docker feature for launch explorers in in early alpha version. Take this into ac
 - Then you should launch the container with:
 
 ```
-docker run -v ${PWD}/.zcash-params:/home/explorer/.zcash-params -v ${PWD}/.komodo:/home/explorer/.komodo -e DAEMON_ARGS="-ac_public=1 -ac_name=KIP0001 -ac_supply=139419284 -ac_staked=10" -e WEB_PORT=3002 -p 127.0.0.1:3002:3002 -it kmdexplorer
+docker run -v ${PWD}/.zcash-params:/home/explorer/.zcash-params -v ${PWD}/.kmdclassic:/home/explorer/.kmdclassic -e DAEMON_ARGS="-ac_public=1 -ac_name=KIP0001 -ac_supply=139419284 -ac_staked=10" -e WEB_PORT=3002 -p 127.0.0.1:3002:3002 -it kmdexplorer
 ```
 
-- This will create `.zcash-params` folder and `.komodo` folder in current (!) directory, container will automatically fill it with needed info. All you need is to specify the daemon arguments in `DAEMON_ARGS` environment variable. Specifying `DAEMON_ARGS` is mandatory for assetchains.
+- This will create `.zcash-params` folder and `.kmdclassic` folder in current (!) directory, container will automatically fill it with needed info. All you need is to specify the daemon arguments in `DAEMON_ARGS` environment variable. Specifying `DAEMON_ARGS` is mandatory for assetchains.
 - After the container starts up and the daemon performs the necessary block checks, bitcore will start:
 
     ![Running container](./container-001.png)
@@ -61,7 +61,7 @@ bczero-explorer:
     - "45833:45833"
   volumes:
     - ./BCZERO/.zcash-params:/home/explorer/.zcash-params
-    - ./BCZERO/.komodo:/home/explorer/.komodo
+    - ./BCZERO/.kmdclassic:/home/explorer/.kmdclassic
   environment:
     - WEB_PORT=3002
     - DAEMON_ARGS=-ac_name=BCZERO -ac_supply=9999999999 -ac_end=1 -ac_public=1 -ac_staked=50 -addnode=65.21.52.182
@@ -77,14 +77,14 @@ komodo-explorer:
     - "7770:7770"
   volumes:
     - .zcash-params:/home/explorer/.zcash-params
-    - .komodo:/home/explorer/.komodo
+    - .kmdclassic:/home/explorer/.kmdclassic
   environment:
     - WEB_PORT=3002
     - COIN_NAME=KMD
     - COIN_RPC_PORT=7771
     - COIN_P2P_PORT=7770
-    - COIN_RPC_USER=komodo
-    - COIN_RPC_PASS=nrQUVgSXG2ICbl0W
+    - COIN_RPC_USER=komodoclassic
+    - COIN_RPC_PASS=3gmLC8ZOqvPkjSXM
     - COIN_ZMQ_PORT=7772
     - COIN_WEB_PORT=3002
 ```
